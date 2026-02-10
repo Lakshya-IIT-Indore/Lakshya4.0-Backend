@@ -8,6 +8,7 @@ const sql = postgres(process.env.DATABASE_URL, {
   ssl: "require",
   prepare: false, // ✅ REQUIRED for pooler
   max: 1,
+  
 })
 
 export { sql }
