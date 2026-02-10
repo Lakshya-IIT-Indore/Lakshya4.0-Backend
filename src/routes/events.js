@@ -104,24 +104,28 @@ router.get("/", async (req, res, next) => {
     let participantsMap = {};
 
     if (teamEventIds.length) {
-      const participants = await sql`
-        SELECT
-          ep.event_id,
-          t.name AS team_name
-        FROM event_participants ep
-        JOIN teams t ON t.id = ep.team_id
-        WHERE ep.event_id IN ${sql(teamEventIds)};
-      `;
+  // Build the query dynamically based on array length
+  const placeholders = teamEventIds.map((id, i) => `$${i + 1}`).join(',');
+  
+  const participants = await sql.query(
+    `SELECT
+      ep.event_id,
+      t.name AS team_name
+    FROM event_participants ep
+    JOIN teams t ON t.id = ep.team_id
+    WHERE ep.event_id IN (${placeholders})`,
+    teamEventIds
+  );
 
-      for (const row of participants) {
-        if (!participantsMap[row.event_id]) {
-          participantsMap[row.event_id] = [];
-        }
-        participantsMap[row.event_id].push({
-          name: row.team_name
-        });
-      }
+  for (const row of participants) {
+    if (!participantsMap[row.event_id]) {
+      participantsMap[row.event_id] = [];
     }
+    participantsMap[row.event_id].push({
+      name: row.team_name
+    });
+  }
+}
 
     /* -----------------------------
        4. Shape final response
