@@ -21,6 +21,15 @@ async function getSportsMap() {
   }, {});
 }
 
+router.get("/health", async (req, res) => {
+  try {
+    await sql`SELECT 1`;
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ status: "error" });
+  }
+});
+
 
 router.get("/sports", async (req, res, next) => {
   try {
